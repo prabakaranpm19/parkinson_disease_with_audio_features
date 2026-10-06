@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkinsonsSpeech.AI | Acoustic Biomarker Diagnostics</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+</head>
+<body class="clinical-theme">
+    <div class="bg-grid-overlay"></div>
+    <div class="glow-spotlight"></div>
+
+    <div class="app-wrapper">
+        <!-- Clinical Header Top Bar -->
+        <header class="top-bar">
+            <div class="brand-container">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="22"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>ParkinsonsSpeech<span class="highlight">.AI</span></h1>
+                    <span class="sub-badge">Acoustic Biomarker Diagnostic Engine</span>
+                </div>
+            </div>
+
+            <div class="header-metrics">
+                <div class="metric-pill latency-pill">
+                    <span class="pulse-dot green"></span>
+                    <span class="pill-label">Server Latency:</span>
+                    <span class="pill-val" id="latency-val">12 ms</span>
+                </div>
+                <div class="metric-pill status-pill" id="system-status-pill">
+                    <span class="status-indicator ready"></span>
+                    <span class="pill-val" id="status-text">System Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Workspace Main Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: Audio Acquisition & Controls -->
+            <section class="card-panel input-section">
+                <div class="panel-title-bar">
+                    <div class="title-with-icon">
+                        <span class="panel-icon">🎙️</span>
+                        <div>
+                            <h2>Speech Acquisition</h2>
+                            <p class="panel-subtitle">Record 3-second sustained vowel phonation (<em>"Aaaaaah"</em>)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Mode Toggle -->
+                <div class="tab-switcher">
+                    <button class="tab-btn active" id="tab-record">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                        Live Mic Recording
+                    </button>
+                    <button class="tab-btn" id="tab-upload">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        WAV Audio Upload
+                    </button>
+                </div>
+
+                <!-- Tab 1 Content: Live Mic Recording -->
+                <div class="tab-pane active" id="content-record">
+                    <div class="oscilloscope-container">
+                        <canvas id="waveform-canvas"></canvas>
+                        <div class="oscilloscope-overlay" id="canvas-placeholder">
+                            <div class="wave-icon-pulse"></div>
+                            <span>Awaiting Audio Signal Input</span>
+                        </div>
+                    </div>
+
+                    <!-- Recording Progress & Controls -->
+                    <div class="recording-controls">
+                        <div class="timer-display-box">
+                            <span class="timer-value" id="recording-timer">00:03.0</span>
+                            <span class="timer-hint" id="timer-status-hint">Click Start to record 3.0s phonation</span>
+                        </div>
+
+                        <div class="rec-progress-container">
+                            <div class="rec-progress-bar" id="rec-progress" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-record" id="btn-record-action">
+                                <span class="rec-dot"></span>
+                                <span id="btn-record-text">Start Recording (Hold "Aaaah")</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="audio-preview-box hidden" id="preview-wrapper">
+                        <span class="preview-label">Playback Audio Signal:</span>
+                        <audio id="audio-preview" controls></audio>
+                    </div>
+                </div>
+
+                <!-- Tab 2 Content: Audio File Upload -->
+                <div class="tab-pane hidden" id="content-upload">
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="upload-icon-box">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        </div>
+                        <h3>Drag & Drop Voice Recording</h3>
+                        <p>Supports WAV, WebM, OGG (16-bit PCM Recommended)</p>
+                        <button class="btn btn-browse" id="btn-browse-trigger">Browse Audio File</button>
+                        <input type="file" id="file-input" accept=".wav,.webm,.ogg,.mp3" style="display: none;">
+                    </div>
+
+                    <div class="file-info-box hidden" id="file-info-container">
+                        <div class="file-meta">
+                            <span class="file-icon">🎵</span>
+                            <span class="file-name" id="selected-file-name">voice_sample.wav</span>
+                        </div>
+                        <button class="btn btn-analyze" id="btn-analyze-file">Analyze Audio Signal</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Real-Time Diagnostic Gauge & Risk Breakdown -->
+            <section class="card-panel diagnostic-section">
+                <div class="panel-title-bar">
+                    <div class="title-with-icon">
+                        <span class="panel-icon">📊</span>
+                        <div>
+                            <h2>Diagnostic Arch Meter</h2>
+                            <p class="panel-subtitle">XGBoost Classifier Inference & Risk Probability</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostic States -->
+                <div class="diagnostic-container">
+                    
+                    <!-- Idle State -->
+                    <div class="diag-state active" id="state-idle">
+                        <div class="idle-graphic">
+                            <div class="pulse-ring-lg"></div>
+                            <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <h3>Ready for Phonation Analysis</h3>
+                        <p>Record a 3-second sustained vowel <em>"Aaaah"</em> or upload a WAV recording to run the acoustic biomarker diagnostic pipeline.</p>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="diag-state hidden" id="state-loading">
+                        <div class="clinical-spinner-box">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-pulse"></div>
+                        </div>
+                        <h3>Analyzing Voice Biomarkers...</h3>
+                        <p id="loading-status-text">Running Librosa spectral extraction & XGBoost inference...</p>
+                    </div>
+
+                    <!-- Active Diagnostic Report State -->
+                    <div class="diag-state hidden" id="state-report">
+                        
+                        <!-- Arch Gauge Box -->
+                        <div class="gauge-card">
+                            <div class="arch-gauge-container">
+                                <svg class="gauge-svg" viewBox="0 0 200 120">
+                                    <!-- Background Arc -->
+                                    <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#21262d" stroke-width="16" stroke-linecap="round"/>
+                                    <!-- Gradient Progress Arc -->
+                                    <path class="gauge-fill" id="gauge-fill-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gauge-gradient)" stroke-width="16" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+                                    
+                                    <!-- Needle Line -->
+                                    <g class="needle-group" id="gauge-needle-group" style="transform: rotate(-90deg); transform-origin: 100px 100px;">
+                                        <line x1="100" y1="100" x2="100" y2="30" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round"/>
+                                        <circle cx="100" cy="100" r="7" fill="#58a6ff" stroke="#f0f6fc" stroke-width="2"/>
+                                    </g>
+
+                                    <!-- SVG Gradients -->
+                                    <defs>
+                                        <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#2ea043" />
+                                            <stop offset="50%" stop-color="#e3b341" />
+                                            <stop offset="100%" stop-color="#da3633" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                
+                                <div class="gauge-center-text">
+                                    <span class="risk-number" id="risk-score">0.0%</span>
+                                    <span class="risk-caption">PARKINSON'S RISK INDEX</span>
+                                </div>
+                            </div>
+
+                            <!-- Diagnosis Badge -->
+                            <div class="result-badge-box" id="diagnosis-badge-container">
+                                <span class="badge-status low-risk" id="diagnosis-label">LOW RISK / HEALTHY</span>
+                            </div>
+                            <p class="diagnosis-desc" id="diagnosis-description">Acoustic biomarkers align with healthy vocal tract stability.</p>
+                        </div>
+
+                        <!-- Probability Bar Comparisons -->
+                        <div class="probability-bars">
+                            <div class="prob-row">
+                                <div class="prob-header">
+                                    <span class="prob-name">Control / Healthy Stability:</span>
+                                    <span class="prob-val" id="prob-healthy-val">100%</span>
+                                </div>
+                                <div class="prob-track">
+                                    <div class="prob-fill healthy" id="prob-healthy-bar" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="prob-row">
+                                <div class="prob-header">
+                                    <span class="prob-name">Parkinsonian Dysphonia Risk:</span>
+                                    <span class="prob-val" id="prob-pd-val">0%</span>
+                                </div>
+                                <div class="prob-track">
+                                    <div class="prob-fill parkinsons" id="prob-pd-bar" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTTOM PANEL: Acoustic Feature Extraction Breakdown (4-Card Grid) -->
+            <section class="card-panel breakdown-section">
+                <div class="panel-title-bar">
+                    <div class="title-with-icon">
+                        <span class="panel-icon">🔬</span>
+                        <div>
+                            <h2>Acoustic Feature Extraction Breakdown</h2>
+                            <p class="panel-subtitle">Real-time clinical biomarker spectrum & acoustic parameter dashboard</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-cards-grid">
+                    
+                    <!-- Card 1: Vocal Tract Shape (MFCCs 1-20) -->
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-badge">Vocal Tract Shape</span>
+                            <h3>MFCC Spectrum (1–20)</h3>
+                        </div>
+                        <p class="card-desc">Mel-Frequency Cepstral Coefficients reflecting vocal tract resonance & timbre.</p>
+                        <div class="mfcc-canvas-box">
+                            <canvas id="mfcc-canvas" height="110"></canvas>
+                        </div>
+                        <div class="card-footer-info">
+                            <span>20 Spectral Coefficients extracted</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Pitch Instability & Tonal Quality -->
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-badge">Pitch & Tonality</span>
+                            <h3>Pitch Instability</h3>
+                        </div>
+                        <p class="card-desc">Chroma STFT pitch distribution & spectral centroid center frequency.</p>
+                        <div class="metric-stats">
+                            <div class="stat-row">
+                                <span class="stat-name">Chroma STFT (Pitchiness):</span>
+                                <span class="stat-value" id="metric-chroma">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Spectral Centroid:</span>
+                                <span class="stat-value" id="metric-centroid">-- Hz</span>
+                            </div>
+                            <div class="eval-pill-box">
+                                <span class="eval-pill" id="eval-pitch">Awaiting Phonation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Voice Brightness & Bandwidth -->
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-badge">Frequency & Energy</span>
+                            <h3>Voice Brightness & Bandwidth</h3>
+                        </div>
+                        <p class="card-desc">High-frequency roll-off point and acoustic spectral bandwidth spread.</p>
+                        <div class="metric-stats">
+                            <div class="stat-row">
+                                <span class="stat-name">Spectral Rolloff:</span>
+                                <span class="stat-value" id="metric-rolloff">-- Hz</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Spectral Bandwidth:</span>
+                                <span class="stat-value" id="metric-bandwidth">-- Hz</span>
+                            </div>
+                            <div class="meter-bar-wrapper">
+                                <div class="meter-fill" id="bar-brightness" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Breathing Noise & Energy Stability -->
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-badge">Loudness & Noise</span>
+                            <h3>Breathing Noise & Energy</h3>
+                        </div>
+                        <p class="card-desc">Zero Crossing Rate (noise density) and RMS Energy (volume stability).</p>
+                        <div class="metric-stats">
+                            <div class="stat-row">
+                                <span class="stat-name">Zero Crossing Rate (ZCR):</span>
+                                <span class="stat-value" id="metric-zcr">--</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">RMS Energy (Loudness):</span>
+                                <span class="stat-value" id="metric-rms">--</span>
+                            </div>
+                            <div class="eval-pill-box">
+                                <span class="eval-pill" id="eval-noise">Awaiting Phonation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Clinical Footnote -->
+        <footer class="app-footer">
+            <div class="disclaimer-pill">
+                <strong>Medical Disclaimer:</strong> ParkinsonsSpeech.AI is a real-time clinical demonstration dashboard utilizing machine learning acoustic biomarker detection via <code>librosa</code>. It is intended for laboratory research and educational evaluation, and does not replace diagnostic clinical evaluations by certified neurologists.
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
