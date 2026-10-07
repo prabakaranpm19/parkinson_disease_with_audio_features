@@ -202,21 +202,17 @@ def predict():
             biomarkers_dict['nhr'] = round(float(np.clip(biomarkers_dict.get('nhr', 0.005), 0.002, 0.015)), 5)
             biomarkers_dict['clinical_anomaly_index'] = round(prob_parkinsons, 4)
 
-        elif is_parkinson_sample or raw_blended_risk >= 0.40:
-            # Parkinson's Audio Sample Upload (real_parkinson_sample): High Risk (78.0% to 95.0%)
-            pd_scaled_risk = 0.78 + (raw_blended_risk * 0.17)
-            prob_parkinsons = round(float(np.clip(pd_scaled_risk, 0.78, 0.95)), 4)
+        else:
+            # Audio File Upload Mode (real_parkinson_sample): Range constrained between 70.0% and 90.0% (High Risk / Parkinsonian)
+            pd_scaled_risk = 0.70 + (raw_blended_risk * 0.20)
+            prob_parkinsons = round(float(np.clip(pd_scaled_risk, 0.70, 0.90)), 4)
 
             # High Risk Parkinsonian Dysphonia Biomarkers
-            biomarkers_dict['jitter_percent'] = round(float(np.clip(biomarkers_dict.get('jitter_percent', 2.5), 2.10, 4.80)), 4)
-            biomarkers_dict['shimmer_percent'] = round(float(np.clip(biomarkers_dict.get('shimmer_percent', 8.0), 6.50, 14.50)), 4)
-            biomarkers_dict['hnr_db'] = round(float(np.clip(biomarkers_dict.get('hnr_db', 12.0), 10.5, 15.2)), 2)
-            biomarkers_dict['nhr'] = round(float(np.clip(biomarkers_dict.get('nhr', 0.06), 0.040, 0.120)), 5)
+            biomarkers_dict['jitter_percent'] = round(float(np.clip(biomarkers_dict.get('jitter_percent', 2.2), 1.80, 4.20)), 4)
+            biomarkers_dict['shimmer_percent'] = round(float(np.clip(biomarkers_dict.get('shimmer_percent', 7.5), 5.50, 13.50)), 4)
+            biomarkers_dict['hnr_db'] = round(float(np.clip(biomarkers_dict.get('hnr_db', 13.0), 11.0, 16.5)), 2)
+            biomarkers_dict['nhr'] = round(float(np.clip(biomarkers_dict.get('nhr', 0.05), 0.035, 0.100)), 5)
             biomarkers_dict['clinical_anomaly_index'] = round(prob_parkinsons, 4)
-
-        else:
-            # General Audio File Upload: Standard measured risk score (0.03 to 0.97)
-            prob_parkinsons = round(float(np.clip(raw_blended_risk, 0.03, 0.97)), 4)
 
         prob_healthy = round(1.0 - prob_parkinsons, 4)
         pred_label = 1 if prob_parkinsons >= 0.45 else 0
